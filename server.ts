@@ -1,13 +1,30 @@
-const PORT = 3000
+const PORT = 5000
 
-import { Micro } from './deps.ts'
+import { Micro, path, readFileStr } from './deps.ts'
 
 const app = new Micro()
 
-app.get('/', (req) => {
-    req.respond({ body: 'Hello World!'})
+// add logger middleware
+app.use((request) => {
+    console.log(`${request.method} ${request.url}`)
+})
+
+app.static('/static', path.join(Deno.cwd(), 'public'))
+
+app.get('/', async (request) => {
+    const filePath = path.join(Deno.cwd(), 'public', 'index.html')
+    const file = await readFileStr(filePath)
+    return request.respond({ body: file })
+})
+
+app.get('/auth', (request) => {
+    request.respond({ body: 'Auth Page'})
+})
+
+app.post('/users', (request) => {
+    request.respond({ body: 'Submit User Data'})
 })
 
 app.listen(PORT, () => {
-    console.log(`App is now listening port ${PORT}`)
+    console.log(`Server is now listening to port ${PORT}`)
 })
